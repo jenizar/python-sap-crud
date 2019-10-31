@@ -1,0 +1,84 @@
+* event handler for data retrieval
+
+DATA : ls_pline TYPE zstockprod,
+       lt_pline TYPE STANDARD TABLE OF zstockprod.
+DATA : json_writer type ref to cl_sxml_string_writer,
+       l_xstring type xstring.
+
+json_writer = cl_sxml_string_writer=>create( type = if_sxml=>co_xt_json ).
+IF c_productid IS NOT INITIAL.
+
+   ls_pline-productid = c_productid.
+   ls_pline-name = c_name.
+   ls_pline-category = c_category.
+   ls_pline-available = c_available.
+   ls_pline-unitprice = c_unitprice.
+   ls_pline-datechecked = c_datechecked.
+   modify zstockprod from ls_pline.
+
+ELSEIF u_productid IS NOT INITIAL.
+      ls_pline-productid = u_productid.
+      ls_pline-name = u_name.
+      ls_pline-category = u_category.
+      ls_pline-available = u_available.
+      ls_pline-unitprice = u_unitprice.
+      ls_pline-datechecked = u_datechecked.
+        UPDATE zstockprod SET name = u_name
+                              category = u_category
+                              available = u_available
+                              unitprice = u_unitprice
+                              datechecked = u_datechecked
+                            WHERE productid = u_productid.
+
+ELSEIF d_productid IS NOT INITIAL.
+    SELECT * FROM zstockprod INTO TABLE lt_pline WHERE productid = d_productid.
+      DELETE zstockprod FROM TABLE lt_pline.
+TRY.
+  CALL TRANSFORMATION id
+    SOURCE produk = lt_pline
+    RESULT XML json_writer.
+
+*  CATCH cx_xslt_format_error INTO DATA(xslt_format_error).
+    " error handling
+ENDTRY.
+
+CALL METHOD response->if_http_entity~set_data
+  EXPORTING
+    data = json_writer->get_output( ).
+
+CALL METHOD response->if_http_entity~set_data
+  EXPORTING
+    data = json_writer->get_output( ).
+ELSEIF q_datefr IS NOT INITIAL.
+
+   SELECT * FROM zstockprod INTO TABLE lt_pline WHERE datechecked between q_datefr AND q_dateto.
+
+TRY.
+  CALL TRANSFORMATION id
+    SOURCE produk = lt_pline
+    RESULT XML json_writer.
+
+*  CATCH cx_xslt_format_error INTO DATA(xslt_format_error).
+    " error handling
+ENDTRY.
+
+CALL METHOD response->if_http_entity~set_data
+  EXPORTING
+    data = json_writer->get_output( ).
+ELSE.
+
+   SELECT * FROM zstockprod INTO TABLE lt_pline. "WHERE datechecked between q_datefr AND q_dateto.
+
+TRY.
+  CALL TRANSFORMATION id
+    SOURCE produk = lt_pline
+    RESULT XML json_writer.
+
+*  CATCH cx_xslt_format_error INTO DATA(xslt_format_error).
+    " error handling
+ENDTRY.
+
+CALL METHOD response->if_http_entity~set_data
+  EXPORTING
+    data = json_writer->get_output( ).
+ENDIF.

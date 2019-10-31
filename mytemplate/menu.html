@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Python-SAP database CRUD</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>	
+    <style type="text/css">
+        .wrapper{
+            width: 950px;
+            margin: 0 auto;
+        }
+        .page-header h2{
+            margin-top: 0;
+        }
+        table tr td:last-child a{
+            margin-right: 15px;
+        }
+		
+    </style>
+	
+    <script type="text/javascript">
+        $(document).ready(function(){
+    //        $('[data-toggle="tooltip"]').tooltip();  	
+
+  $("#myInput").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#myTable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+  
+        });
+
+    </script>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="page-header clearfix">
+					    <h1 class="pull-center">Python-SAP database CRUD</h1>
+                        <h2 class="pull-left">Product Inventory</h2>
+                    </div>
+									
+<a href="{{ url_for('addform') }}" class="btn btn-success pull-right">Add Data</a>
+<input type="text" id="myInput" placeholder="Type to search">
+<br></br> 
+                            <table class='table table-bordered table-striped'>
+                               <thead>
+                                  <tr>
+                                        <th bgcolor='#ccccff'>Product ID</th>
+                                        <th bgcolor='#ccccff'>Name</th>
+                                        <th bgcolor='#ccccff'>Category</th>
+                                        <th bgcolor='#ccccff'>Available</th>
+                                        <th bgcolor='#ccccff'>Unit Price</th>
+										<th bgcolor='#ccccff'>Date Checked</th>
+										<th bgcolor='#ffd480'>Action</th>
+                                  </tr>
+                               </thead>
+                               <tbody id='myTable'>
+{% for item in data %}		
+      <tr>
+        <td>{{item["PRODUCTID"]}}</td>
+        <td>{{item["NAME"]}}</td>
+        <td>{{item["CATEGORY"]}}</td>
+        <td>{{item["AVAILABLE"]}}</td>
+        <td>{{item["UNITPRICE"]}}</td>	
+        <td>{{item["DATECHECKED"]}}</td>
+		<td>
+        <a href="{{ url_for('readform', r_productid=item["PRODUCTID"], r_name=item["NAME"], r_cat=item["CATEGORY"], r_avail=item["AVAILABLE"], r_price=item["UNITPRICE"], r_date=item["DATECHECKED"]) }}" title='View Record' data-toggle='tooltip'><span class='glyphicon glyphicon-eye-open'></span></a>
+        <a href="{{ url_for('updateform', u_productid=item["PRODUCTID"], u_name=item["NAME"], u_cat=item["CATEGORY"], u_avail=item["AVAILABLE"], u_price=item["UNITPRICE"], u_date=item["DATECHECKED"]) }}" title='Update Record' data-toggle='tooltip'><span class='glyphicon glyphicon-pencil'></span></a>
+        <a href="{{ url_for('deleteform', d_productid=item["PRODUCTID"], d_name=item["NAME"], d_cat=item["CATEGORY"], d_avail=item["AVAILABLE"], d_price=item["UNITPRICE"], d_date=item["DATECHECKED"]) }}" title='Delete Record' data-toggle='tooltip'><span class='glyphicon glyphicon-trash'></span></a>
+		</td>
+      </tr>
+{% endfor %}								   
+				</tbody>
+</table>				
+                </div>
+            </div>        
+        </div>
+    </div>
+</body>
+</html>							   
